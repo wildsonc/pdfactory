@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{TITLE}}</title>
+    <style>
+      @page {
+        counter-increment: page;
+        size: {{page_size|default:'A4'}} {{orientation|default:'portrait'}};
+        margin: {{margin_top}}{{margin_unit}} {{margin_right}}{{margin_unit}} {{margin_bottom}}{{margin_unit}} {{margin_left}}{{margin_unit}};
+        {% if background %}
+        background-color: {{background_color}};
+        {% endif %}
+        @top-left {
+          content: element(pageHeader);
+          width: 100%;
+        }
+        @bottom-left {
+            content: element(pageFooter);
+        }
+      }
+      #pageFooter{
+        position: running(pageFooter);
+      }
+      #pageHeader{
+        position: running(pageHeader);
+      }
+      {% block style %}
+      {% endblock %}
+    </style>
+    {% block head %} {% endblock %}
+  </head>
+  {% autoescape off %}
+  <header id="pageHeader">{% if header %} {{header_template}} {% endif %}</header>
+  <footer id="pageFooter">{% if footer %}{{footer_template}}{% endif %}</footer>
+  {% endautoescape %}
+  <body>
+    {% block content %}{% endblock %}
+  </body>
+</html>
