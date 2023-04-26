@@ -10,7 +10,19 @@ ENV PYTHONUNBUFFERED 1
 RUN apt-get -y update \
     && apt-get install -y \
     python3-pip python3-cffi python3-dev python3-brotli libpango-1.0-0 libpangoft2-1.0-0  \
+    libxrender1 \
+    libfontconfig1 \
+    libjpeg62-turbo \
+    xfonts-75dpi \
+    xfonts-base \
     && apt-get -y clean
+
+# download and install wkhtmltoimage
+RUN apt-get -y install wget \
+    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb \
+    && apt-get -y install ./wkhtmltox_0.12.6-1.buster_amd64.deb \
+    && apt-get -y clean \
+    && rm -rf ./wkhtmltox_0.12.6-1.buster_amd64.deb
 
 COPY requirements.txt /code/
 
