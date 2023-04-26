@@ -26,7 +26,7 @@ docker run -d -p 8000:8000 \
 -e "ADMIN_EMAIL=admin@gmail.com" \
 -e "ADMIN_PASSWORD=admin" \
 -e "DOMAIN=https://pdfactory.com" \
---name pdfactory explorernet/pdfactory
+--name pdfactory wildsonc/pdfactory
 ```
 
 > User: admin@gmail.com Password: admin
