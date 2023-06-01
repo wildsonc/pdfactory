@@ -2,7 +2,7 @@ import { ActionIcon, Button, Group, PasswordInput, Tabs, Text, TextInput } from 
 import { useForm } from "@mantine/form";
 import { openConfirmModal } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
-import { IconApi, IconKey, IconRefresh, IconUser } from "@tabler/icons";
+import { IconApi, IconKey, IconRefresh, IconUser } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import CopyButton from "../components/CopyButton";
 import { useAuth } from "../context/auth";

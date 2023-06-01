@@ -1,5 +1,5 @@
 import { ActionIcon } from "@mantine/core";
-import { IconWand } from "@tabler/icons";
+import { IconWand } from "@tabler/icons-react";
 import js_beautify from "js-beautify";
 import { useTemplateFormContext } from "../../context/form-context";
 import CustomEditor from "../CustomEditor";

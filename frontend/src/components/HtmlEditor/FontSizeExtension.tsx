@@ -45,7 +45,10 @@ export const TextStyleExtended = TextStyle.extend({
       unsetFontSize:
         () =>
         ({ chain }) => {
-          return chain().setMark(this.name, { fontSize: null }).removeEmptyTextStyle().run();
+          return chain()
+            .setMark(this.name, { fontSize: null })
+            .removeEmptyTextStyle()
+            .run();
         },
     };
   },

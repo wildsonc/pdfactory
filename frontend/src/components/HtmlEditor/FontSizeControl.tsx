@@ -1,6 +1,6 @@
 import { Select } from "@mantine/core";
 import { useRichTextEditorContext } from "@mantine/tiptap";
-import { IconTextSize } from "@tabler/icons";
+import { IconTextSize } from "@tabler/icons-react";
 
 let SIZES = [
   "6",

@@ -3,7 +3,7 @@ import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { openConfirmModal } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconSearch, IconTrash } from "@tabler/icons";
+import { IconEdit, IconSearch, IconTrash } from "@tabler/icons-react";
 import { DataTable } from "mantine-datatable";
 import moment from "moment";
 import { useState } from "react";

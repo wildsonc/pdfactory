@@ -25,13 +25,25 @@
       #pageHeader{
         position: running(pageHeader);
       }
+      table {
+          width: 100%;
+          border: 0.0625rem solid black;
+          border-collapse: collapse;
+      }
+
+      table p {
+          margin: 0;
+          padding-left: 4px
+      }
       {% block style %}
       {% endblock %}
     </style>
     {% block head %} {% endblock %}
   </head>
   {% autoescape off %}
-  <header id="pageHeader">{% if header %} {{header_template}} {% endif %}</header>
+  <header id="pageHeader">
+    {% if header %} {{header_template}} {% endif %}
+  </header>
   <footer id="pageFooter">{% if footer %}{{footer_template}}{% endif %}</footer>
   {% endautoescape %}
   <body>

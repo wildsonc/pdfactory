@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="shortcut icon"
+      type="image/svg+xml"
+      href="/static/assets/favicon.svg"
+    />
+    <link
+      rel="shortcut icon"
+      type="image/png"
+      href="/static/assets/favicon.png"
+      sizes="32x32"
+    />
     {% for font in fonts%}
     <link href="{{font.url}}" rel="stylesheet" />
     {% endfor %}
@@ -26,7 +37,6 @@
 
   <body>
     <div id="root"></div>
-
     {% if debug %}
     <script type="module" src="http://localhost:5173/src/main.tsx"></script>
     {% else %} {% render_vite_bundle %} {% endif %}

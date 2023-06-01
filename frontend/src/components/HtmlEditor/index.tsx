@@ -5,6 +5,9 @@ import FontFamily from "@tiptap/extension-font-family";
 import Highlight from "@tiptap/extension-highlight";
 import SubScript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
+import Table from "@tiptap/extension-table";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import { BubbleMenu, FloatingMenu, useEditor } from "@tiptap/react";
@@ -15,6 +18,11 @@ import FontSizeControl from "./FontSizeControl";
 import { TextStyleExtended } from "./FontSizeExtension";
 import PageBreakControl from "./PageBreakControl";
 import SourceCodeControl from "./SourceCodeControl";
+import TableBorderBottomControl from "./TableControl/TableBorderBottomControl";
+import TableVerticalBorderControl from "./TableControl/TableBorderRightControl";
+import TableCellControl from "./TableControl/TableCellControl";
+import { TableCellExtended } from "./TableControl/TableCellExtension";
+import TableControl from "./TableControl/TableControl";
 
 const COLORS = [
   "#000",
@@ -49,6 +57,10 @@ function HtmlEditor({ height }: { height: number }) {
       FontFamily.configure({
         types: ["textStyle"],
       }),
+      Table,
+      TableRow,
+      TableHeader,
+      TableCellExtended,
     ],
     onUpdate({ editor }) {
       form.setFieldValue("html", editor.getHTML());
@@ -76,7 +88,15 @@ function HtmlEditor({ height }: { height: number }) {
           }}
         >
           <RichTextEditor.Toolbar sticky>
-            <Group spacing="xs">
+            <Group spacing="xs" mx={-5}>
+              <RichTextEditor.ControlsGroup>
+                <FontSizeControl />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <FontFamilyControl />
+              </RichTextEditor.ControlsGroup>
+
               <RichTextEditor.ControlsGroup>
                 <RichTextEditor.Bold />
                 <RichTextEditor.Italic />
@@ -86,12 +106,19 @@ function HtmlEditor({ height }: { height: number }) {
                 <RichTextEditor.Highlight />
                 <RichTextEditor.Code />
               </RichTextEditor.ControlsGroup>
+
               <RichTextEditor.ControlsGroup>
                 <RichTextEditor.H1 />
                 <RichTextEditor.H2 />
                 <RichTextEditor.H3 />
                 <RichTextEditor.H4 />
               </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Link />
+                <RichTextEditor.Unlink />
+              </RichTextEditor.ControlsGroup>
+
               <RichTextEditor.ControlsGroup>
                 <RichTextEditor.Blockquote />
                 <RichTextEditor.BulletList />
@@ -99,26 +126,25 @@ function HtmlEditor({ height }: { height: number }) {
                 <RichTextEditor.Subscript />
                 <RichTextEditor.Superscript />
               </RichTextEditor.ControlsGroup>
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Link />
-                <RichTextEditor.Unlink />
-              </RichTextEditor.ControlsGroup>
+
               <RichTextEditor.ControlsGroup>
                 <RichTextEditor.AlignLeft />
                 <RichTextEditor.AlignCenter />
                 <RichTextEditor.AlignJustify />
                 <RichTextEditor.AlignRight />
               </RichTextEditor.ControlsGroup>
-              <RichTextEditor.ControlsGroup>
-                <FontFamilyControl />
-              </RichTextEditor.ControlsGroup>
-              <RichTextEditor.ControlsGroup>
-                <FontSizeControl />
-              </RichTextEditor.ControlsGroup>
+
               <RichTextEditor.ControlsGroup>
                 <RichTextEditor.ColorPicker colors={COLORS} />
                 <SourceCodeControl />
                 <PageBreakControl />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <TableControl />
+                <TableCellControl />
+                <TableVerticalBorderControl />
+                <TableBorderBottomControl />
               </RichTextEditor.ControlsGroup>
             </Group>
           </RichTextEditor.Toolbar>
@@ -131,6 +157,7 @@ function HtmlEditor({ height }: { height: number }) {
                   <RichTextEditor.Italic />
                   <RichTextEditor.Link />
                   <RichTextEditor.ColorPicker colors={COLORS} />
+                  {editor.isActive("table") && <TableCellControl />}
                 </RichTextEditor.ControlsGroup>
               </BubbleMenu>
               <FloatingMenu editor={editor}>

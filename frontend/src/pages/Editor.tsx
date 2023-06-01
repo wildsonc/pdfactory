@@ -1,8 +1,31 @@
-import { ActionIcon, Button, Grid, Group, Tabs, TextInput } from "@mantine/core";
-import { useElementSize, useHotkeys } from "@mantine/hooks";
+import {
+  ActionIcon,
+  Box,
+  Button,
+  Flex,
+  Grid,
+  Group,
+  HoverCard,
+  Kbd,
+  Tabs,
+  Text,
+  TextInput,
+} from "@mantine/core";
+import { getHotkeyHandler, useElementSize } from "@mantine/hooks";
+import { modals } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
-import { IconBrandCss3, IconBrandHtml5, IconCode, IconEdit, IconEye, IconSettings } from "@tabler/icons";
+import {
+  IconBrandCss3,
+  IconBrandHtml5,
+  IconChevronLeft,
+  IconCode,
+  IconEdit,
+  IconHelpCircle,
+  IconSettings,
+  IconVariable,
+} from "@tabler/icons-react";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import CssEditor from "../components/CssEditor";
 import RichHtmlEditor from "../components/HtmlEditor";
@@ -14,11 +37,13 @@ import api from "../services/api";
 
 const Editor = () => {
   let { pk } = useParams();
-  const navigate = useNavigate();
+  const { ref, height } = useElementSize();
   const [loading, setLoading] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [fileURL, setFileURL] = useState("");
-  const { ref, height } = useElementSize();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const form = useTemplateForm({
     initialValues: {
       name: "My Template",
@@ -43,7 +68,15 @@ const Editor = () => {
       },
     },
   });
-  useHotkeys([["mod+shift+Enter", () => preview()]]);
+
+  useEffect(() => {
+    const handler = getHotkeyHandler([["mod+shift+Enter", () => preview()]]);
+    document.body.addEventListener("keydown", handler);
+
+    return () => {
+      document.body.removeEventListener("keydown", handler);
+    };
+  }, [form.values]);
 
   useEffect(() => {
     if (!pk) return;
@@ -53,6 +86,7 @@ const Editor = () => {
       .then((res) => {
         form.setValues(res.data);
         preview(res.data);
+        form.resetDirty(res.data);
       })
       .catch((err) => {
         if (err.response.status == 404) {
@@ -67,13 +101,20 @@ const Editor = () => {
       });
   }, [pk]);
 
+  const regex = /{{(.*?)}}/g;
+  let match;
+  let vars = [];
+  while ((match = regex.exec(form.values.html))) {
+    vars.push(match[1].split("|")[0]);
+  }
+
   const handleSubmit = (values: typeof form.values) => {
     setLoading(true);
     if (values.id) {
       api
         .put(`/api/templates/${values.id}`, values)
         .then((res) => {
-          setLoading(false);
+          form.resetDirty(values);
           showNotification({
             title: "Success",
             message: "Template updated",
@@ -86,15 +127,15 @@ const Editor = () => {
             message: err.message,
             color: "red",
           });
-          setLoading(false);
-        });
+        })
+        .finally(() => setLoading(false));
     } else {
       api
         .post("/api/templates", values)
         .then((res) => {
           form.setFieldValue("id", res.data.id);
           window.history.replaceState("", "", `/templates/${res.data.id}`);
-          setLoading(false);
+          form.resetDirty(values);
           showNotification({
             title: "Success",
             message: "Template created",
@@ -107,8 +148,8 @@ const Editor = () => {
             message: err.message,
             color: "red",
           });
-          setLoading(false);
-        });
+        })
+        .finally(() => setLoading(false));
     }
   };
 
@@ -118,7 +159,11 @@ const Editor = () => {
     try {
       json = values.json != "" ? JSON.parse(values.json) : {};
     } catch (err) {
-      showNotification({ title: "Error", message: "Invalid JSON", color: "red" });
+      showNotification({
+        title: "Error",
+        message: "Invalid JSON",
+        color: "red",
+      });
       return;
     }
     setPreviewLoading(true);
@@ -135,10 +180,8 @@ const Editor = () => {
         const file = new Blob([res.data], { type: "application/pdf" });
         const url = URL.createObjectURL(file);
         setFileURL(url);
-        setPreviewLoading(false);
       })
       .catch((err) => {
-        setPreviewLoading(false);
         err.response.data.text().then((res: any) =>
           showNotification({
             title: "Error",
@@ -146,8 +189,29 @@ const Editor = () => {
             color: "red",
           })
         );
-      });
+      })
+      .finally(() => setPreviewLoading(false));
   };
+
+  const openDeleteModal = () =>
+    modals.openConfirmModal({
+      title: <strong>Delete template</strong>,
+      centered: true,
+      children: (
+        <Text size="sm">Are you sure you want to delete this template?</Text>
+      ),
+      labels: { confirm: "Delete template", cancel: "No don't delete it" },
+      confirmProps: { color: "red" },
+      onConfirm: () =>
+        api.delete(`/api/templates/${form.values?.id}`).then((res) => {
+          showNotification({
+            message: "Deleted",
+            color: "red",
+          });
+          queryClient.invalidateQueries("templates");
+          navigate("/templates");
+        }),
+    });
 
   if (pk != "new" && !form.values.id) return <></>;
 
@@ -156,26 +220,57 @@ const Editor = () => {
       <TemplateFormProvider form={form}>
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Group position="apart">
-            <TextInput
-              {...form.getInputProps("name")}
-              required
-              w={350}
-              variant="unstyled"
-              styles={(theme) => ({
-                input: { fontWeight: 600, color: theme.colorScheme == "dark" ? "white" : "black" },
-              })}
-              icon={
-                <ActionIcon>
-                  <IconEdit size={16} />
-                </ActionIcon>
-              }
-              maxLength={100}
-            />
-            <Group spacing="xs">
-              <Button compact variant="default" onClick={() => navigate("/templates")}>
-                Back
+            <Group spacing={2}>
+              <IconEdit size={16} />
+              <TextInput
+                {...form.getInputProps("name")}
+                required
+                variant="unstyled"
+                styles={(theme) => ({
+                  input: {
+                    fontWeight: 600,
+                    color: theme.colorScheme == "dark" ? "white" : "black",
+                    paddingLeft: theme.spacing.xs,
+
+                    "&:hover": {
+                      background:
+                        theme.colorScheme == "dark"
+                          ? theme.colors.dark[6]
+                          : theme.colors.gray[2],
+                      borderRadius: theme.radius.sm,
+                    },
+                  },
+                })}
+                maxLength={100}
+              />
+            </Group>
+            <Group spacing="xs" mt={-15}>
+              <Button
+                compact
+                variant="default"
+                onClick={() => {
+                  queryClient.invalidateQueries("templates");
+                  navigate("/templates");
+                }}
+                leftIcon={<IconChevronLeft size={16} />}
+              >
+                Back to list
               </Button>
-              <Button compact color="green" type="submit" loading={loading}>
+              <Button
+                compact
+                color="red"
+                onClick={openDeleteModal}
+                disabled={!form.values?.id}
+              >
+                Delete
+              </Button>
+              <Button
+                compact
+                color="green"
+                type="submit"
+                loading={loading}
+                disabled={form.values.html == "" || !form.isDirty()}
+              >
                 Save
               </Button>
             </Group>
@@ -184,21 +279,21 @@ const Editor = () => {
             <Grid.Col lg={6} sm={12} h={height}>
               <Tabs defaultValue="template" h="100%">
                 <Tabs.List grow>
-                  <Tabs.Tab value="template" icon={<IconBrandHtml5 size={14} />}>
+                  <Tabs.Tab
+                    value="template"
+                    icon={<IconBrandHtml5 size={16} />}
+                  >
                     Template
                   </Tabs.Tab>
-                  <Tabs.Tab value="css" icon={<IconBrandCss3 size={14} />}>
+                  <Tabs.Tab value="css" icon={<IconBrandCss3 size={16} />}>
                     CSS
                   </Tabs.Tab>
-                  <Tabs.Tab value="json" icon={<IconCode size={14} />}>
+                  <Tabs.Tab value="json" icon={<IconCode size={16} />}>
                     JSON
                   </Tabs.Tab>
-                  <Tabs.Tab value="settings" icon={<IconSettings size={14} />}>
+                  <Tabs.Tab value="settings" icon={<IconSettings size={16} />}>
                     Settings
                   </Tabs.Tab>
-                  <Button compact ml={5} onClick={() => preview()} loading={previewLoading}>
-                    Preview
-                  </Button>
                 </Tabs.List>
 
                 <Tabs.Panel value="template" pt="xs">
@@ -218,17 +313,57 @@ const Editor = () => {
               </Tabs>
             </Grid.Col>
             <Grid.Col lg={6} sm={12} mah="100%">
-              <Tabs defaultValue="preview" h="100%">
-                <Tabs.List grow>
-                  <Tabs.Tab value="preview" icon={<IconEye size={14} />}>
-                    Preview
-                  </Tabs.Tab>
-                </Tabs.List>
-
-                <Tabs.Panel value="preview" pt="xs" h="calc(100% - 40px)" ref={ref}>
-                  <Preview url={fileURL} />
-                </Tabs.Panel>
-              </Tabs>
+              <Group noWrap spacing="xs">
+                <Button
+                  fullWidth
+                  onClick={() => preview()}
+                  loading={previewLoading}
+                  variant="outline"
+                  rightIcon={
+                    <Flex align="center" my="xs">
+                      <Kbd size="xs">Ctrl</Kbd>
+                      <Kbd ml={3} size="xs">
+                        Shift
+                      </Kbd>
+                      <Kbd ml={3} size="xs">
+                        Enter
+                      </Kbd>
+                    </Flex>
+                  }
+                >
+                  Preview
+                </Button>
+                <HoverCard shadow="md">
+                  <HoverCard.Target>
+                    <ActionIcon variant="filled" size="lg">
+                      <IconVariable size={20} />
+                    </ActionIcon>
+                  </HoverCard.Target>
+                  <HoverCard.Dropdown p="xs">
+                    <Text color="dimmed" ta="center" mt={-5} size="sm">
+                      Variables
+                    </Text>
+                    {[...new Set(vars)].sort().map((v) => (
+                      <Text size="sm" key={v}>
+                        {v}
+                      </Text>
+                    ))}
+                  </HoverCard.Dropdown>
+                </HoverCard>
+                <ActionIcon
+                  component="a"
+                  href="https://docs.djangoproject.com/en/dev/ref/templates/builtins"
+                  target="_blank"
+                  color="yellow"
+                  variant="outline"
+                  size="lg"
+                >
+                  <IconHelpCircle size={20} />
+                </ActionIcon>
+              </Group>
+              <Box h="calc(100% - 40px)" ref={ref} mt="xs">
+                <Preview url={fileURL} />
+              </Box>
             </Grid.Col>
           </Grid>
         </form>

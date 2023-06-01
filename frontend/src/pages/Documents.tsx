@@ -1,7 +1,7 @@
 import { ActionIcon, Group, Text, TypographyStylesProvider } from "@mantine/core";
 import { openConfirmModal, openModal } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
-import { IconExternalLink, IconEye, IconTrash } from "@tabler/icons";
+import { IconExternalLink, IconEye, IconTrash } from "@tabler/icons-react";
 import { DataTable } from "mantine-datatable";
 import { useEffect, useState } from "react";
 import { useQuery } from "react-query";

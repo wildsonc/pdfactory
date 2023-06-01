@@ -1,7 +1,7 @@
 import { ActionIcon, Button, Group, Text, TextInput } from "@mantine/core";
 import { openConfirmModal } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
-import { IconCopy, IconEdit, IconSearch, IconTrash } from "@tabler/icons";
+import { IconCopy, IconEdit, IconSearch, IconTrash } from "@tabler/icons-react";
 import { DataTable } from "mantine-datatable";
 import moment from "moment";
 import { useState } from "react";
@@ -46,7 +46,9 @@ const Templates = () => {
         </span>
       ),
       centered: true,
-      children: <Text size="sm">Are you sure you want to delete this template?</Text>,
+      children: (
+        <Text size="sm">Are you sure you want to delete this template?</Text>
+      ),
       labels: { confirm: "Delete", cancel: "Cancel" },
       confirmProps: { color: "red" },
       onCancel: () => {},
@@ -69,19 +71,23 @@ const Templates = () => {
         </span>
       ),
       centered: true,
-      children: <Text size="sm">Are you sure you want to clone this template?</Text>,
+      children: (
+        <Text size="sm">Are you sure you want to clone this template?</Text>
+      ),
       labels: { confirm: "Clone", cancel: "Cancel" },
       confirmProps: { color: "blue" },
       onCancel: () => {},
       onConfirm: () =>
-        api.post(`api/templates`, { ...data, name: data.name + " (copy)" }).then((res) => {
-          refetch();
-          showNotification({
-            title: data.name,
-            message: "Cloned",
-            color: "green",
-          });
-        }),
+        api
+          .post(`api/templates`, { ...data, name: data.name + " (copy)" })
+          .then((res) => {
+            refetch();
+            showNotification({
+              title: data.name,
+              message: "Cloned",
+              color: "green",
+            });
+          }),
     });
 
   return (
@@ -111,7 +117,7 @@ const Templates = () => {
             textAlignment: "center",
             width: 40,
           },
-          { accessor: "name", width: 300, ellipsis: true },
+          { accessor: "name" },
           {
             accessor: "updated_at",
             textAlignment: "center",
@@ -134,10 +140,16 @@ const Templates = () => {
                   <ActionIcon onClick={() => navigate(String(data.id))}>
                     <IconEdit size={16} />
                   </ActionIcon>
-                  <ActionIcon color="blue.5" onClick={() => openCloneModal(data)}>
+                  <ActionIcon
+                    color="blue.5"
+                    onClick={() => openCloneModal(data)}
+                  >
                     <IconCopy size={16} />
                   </ActionIcon>
-                  <ActionIcon color="red.5" onClick={() => openDeleteModal(data.id, data.name)}>
+                  <ActionIcon
+                    color="red.5"
+                    onClick={() => openDeleteModal(data.id, data.name)}
+                  >
                     <IconTrash size={16} />
                   </ActionIcon>
                 </Group>

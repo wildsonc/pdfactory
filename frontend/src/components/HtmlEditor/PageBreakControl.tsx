@@ -1,5 +1,5 @@
 import { RichTextEditor, useRichTextEditorContext } from "@mantine/tiptap";
-import { IconPageBreak } from "@tabler/icons";
+import { IconPageBreak } from "@tabler/icons-react";
 
 const PageBreakControl = () => {
   const { editor } = useRichTextEditorContext();

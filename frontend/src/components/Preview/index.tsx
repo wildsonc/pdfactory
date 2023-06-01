@@ -1,5 +1,5 @@
 import { Center, Paper } from "@mantine/core";
-import { IconFileInvoice } from "@tabler/icons";
+import { IconFileInvoice } from "@tabler/icons-react";
 
 interface Props {
   url: string;

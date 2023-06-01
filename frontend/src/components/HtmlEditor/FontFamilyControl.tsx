@@ -1,6 +1,6 @@
 import { Select } from "@mantine/core";
 import { useRichTextEditorContext } from "@mantine/tiptap";
-import { IconTypography } from "@tabler/icons";
+import { IconTypography } from "@tabler/icons-react";
 import { useQuery } from "react-query";
 import api from "../../services/api";
 
@@ -31,7 +31,9 @@ export default function FontFamilyControl() {
 
   return (
     <Select
-      data={DEFAULT.concat(fonts || []).sort((a, b) => (a.label > b.label ? 1 : b.label > a.label ? -1 : 0))}
+      data={DEFAULT.concat(fonts || []).sort((a, b) =>
+        a.label > b.label ? 1 : b.label > a.label ? -1 : 0
+      )}
       value={value}
       size="xs"
       withinPortal

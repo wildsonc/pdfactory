@@ -3,7 +3,7 @@ import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { openConfirmModal } from "@mantine/modals";
 import { showNotification } from "@mantine/notifications";
-import { IconEdit, IconExternalLink, IconQuestionCircle, IconSearch, IconTrash } from "@tabler/icons";
+import { IconEdit, IconExternalLink, IconHelpCircleFilled, IconSearch, IconTrash } from "@tabler/icons-react";
 import { DataTable } from "mantine-datatable";
 import moment from "moment";
 import { useState } from "react";
@@ -202,7 +202,7 @@ const Fonts = () => {
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <TextInput label="Name" {...form.getInputProps("name")} required />
           <TextInput type="url" label="URL" {...form.getInputProps("url")} required />
-          <Alert icon={<IconQuestionCircle size={20} />} title="How to" color="yellow" variant="outline" mt={20} p="xs">
+          <Alert icon={<IconHelpCircleFilled size={20} />} title="How to" color="yellow" variant="outline" mt={20} p="xs">
             <List size="sm">
               <List.Item>
                 Go to the{" "}

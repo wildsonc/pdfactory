@@ -1,5 +1,5 @@
 import { ActionIcon, CopyButton, Tooltip } from "@mantine/core";
-import { IconCheck, IconCopy } from "@tabler/icons";
+import { IconCheck, IconCopy } from "@tabler/icons-react";
 
 const CustomCopyButton = ({ value }: { value: string }) => {
   return (
